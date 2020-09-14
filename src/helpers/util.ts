@@ -1,6 +1,7 @@
 const toString = Object.prototype.toString
 
-// 返回一个类型谓词，可以使得在进入成功的条件分支时带有提示功能
+// 类型谓词，可以使得在进入成功的条件分支时带有提示功能
+// 这整个函数就是一个谓词
 export function isDate(val: any): val is Date {
   return toString.call(val) === '[object Date]'
 }
