@@ -11,10 +11,26 @@ function normalizedHeaderName(headers: any, normalizedName: string): void {
   })
 }
 
-export default function processHeaders(headers: any, data: any): any {
+export function processHeaders(headers: any, data: any): any {
   normalizedHeaderName(headers, 'Content-Type')
   // 设置默认值
   if (isPlainObject(data) && headers && !headers['Content-Type'])
     headers['Content-Type'] = 'application/json;charset=utf-8'
   return headers
+}
+
+export function parseHeaders(headers: string): void {
+  if (!headers) return
+
+  const parsed = Object.create(null)
+
+  headers.split('\r\n').forEach(line => {
+    let [key, val] = line.split(':')
+    key = key.trim().toLocaleLowerCase()
+    if (!key) return
+    val && (val = val.trim())
+    parsed[key] = val
+  })
+
+  return parsed
 }
