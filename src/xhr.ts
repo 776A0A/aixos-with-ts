@@ -1,12 +1,35 @@
-import { AxiosRequestConfig } from './types/index'
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types/index'
 
-export default function xhr(config: AxiosRequestConfig): void {
-  const { data = null, url, method = 'get', headers } = config
-  const request = new XMLHttpRequest()
-  request.open(method.toLocaleUpperCase(), url, true)
-  data &&
-    Object.entries(headers).forEach(([name, val]) => {
-      request.setRequestHeader(name, val as string)
-    })
-  request.send(data)
+export default function xhr(config: AxiosRequestConfig): AxiosPromise {
+  return new Promise((resolve, reject) => {
+    const { data = null, url, method = 'get', headers, responseType } = config
+    const request = new XMLHttpRequest()
+
+    responseType && (request.responseType = responseType)
+
+    request.open(method.toLocaleUpperCase(), url, true)
+
+    request.onreadystatechange = function handleLoad() {
+      if (request.readyState !== 4) return
+
+      const responseHeaders = request.getAllResponseHeaders()
+      const responseData = responseType !== 'text' ? request.response : request.responseText
+
+      const response: AxiosResponse = {
+        data: responseData,
+        status: request.status,
+        statusText: request.statusText,
+        headers: responseHeaders,
+        config,
+        request
+      }
+
+      resolve(response)
+    }
+    data &&
+      Object.entries(headers).forEach(([name, val]) => {
+        request.setRequestHeader(name, val as string)
+      })
+    request.send(data)
+  })
 }
