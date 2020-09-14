@@ -13,3 +13,11 @@ export function isObject(val: any): val is Object {
 export function isPlainObject(val: any): val is Object {
   return toString.call(val) === '[object Object]'
 }
+
+// 交叉类型
+export function extend<T, U>(t: T, u: U): T & U {
+  for (const key in u) {
+    ;(t as T & U)[key] = u[key] as any
+  }
+  return t as T & U
+}
