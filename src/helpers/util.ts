@@ -22,7 +22,7 @@ export function extend<T, U>(t: T, u: U): T & U {
   return t as T & U
 }
 
-export function deepMerge(...objs: object[]): any {
+export function deepMerge(...objs: any[]): any {
   const result = Object.create(null)
 
   objs.forEach(obj => {
