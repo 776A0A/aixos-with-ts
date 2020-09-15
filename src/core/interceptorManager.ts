@@ -5,6 +5,7 @@ interface Interceptor<T> {
   rejected?: RejectedFn
 }
 
+// 只做保存拦截器
 export default class InterceptorManager<T> {
   private interceptors: Array<Interceptor<T> | null> = []
 

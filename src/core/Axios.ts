@@ -8,6 +8,7 @@ import {
 } from '../types/index'
 import dispatchRequest from './dispatchRequest'
 import InterceptorManager from './interceptorManager'
+import mergeConfig from './mergeConfig'
 
 interface Interceptors {
   request: InterceptorManager<AxiosRequestConfig>
@@ -25,9 +26,13 @@ export default class Axios {
     response: new InterceptorManager<AxiosResponse>()
   }
 
+  constructor(public defaults: AxiosRequestConfig) {}
+
   request(url: any, config: any = {}): AxiosPromise {
     if (typeof url === 'string') config.url = url
     else config = url
+
+    config = mergeConfig(this.defaults, config)
 
     // 制造一条链，以发请求send作为分隔，以此执行请求和响应拦截器
     const chain: PromiseChain<any>[] = [
@@ -37,9 +42,9 @@ export default class Axios {
       }
     ]
 
-    // 请求拦截器，后添加的先执行
+    // 添加请求拦截器，后添加的先执行
     this.interceptors.request.forEach(interceptor => chain.unshift(interceptor))
-    // 响应拦截器，后添加的后执行
+    // 添加响应拦截器，后添加的后执行
     this.interceptors.response.forEach(interceptor => chain.push(interceptor))
 
     let promise = Promise.resolve(config)
