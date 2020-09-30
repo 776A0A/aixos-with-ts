@@ -6,6 +6,7 @@ import transform from './transform'
 
 // 发起请求
 export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
+  throwIfCancellationRequested(config)
   processConfig(config)
   return xhr(config).then(res => transformResponseData(res))
 }
@@ -24,4 +25,8 @@ function transformURL(config: AxiosRequestConfig): string {
 function transformResponseData(response: AxiosResponse): AxiosResponse {
   response.data = transform(response.data, response.headers, response.config.transformResponse)
   return response
+}
+
+function throwIfCancellationRequested(config: AxiosRequestConfig): void {
+  if (config.cancelToken) config.cancelToken.throwIfRequest()
 }

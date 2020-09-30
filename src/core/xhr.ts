@@ -4,7 +4,15 @@ import { createError } from '../helpers/error'
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
-    const { data = null, url, method = 'get', headers, responseType, timeout = 0 } = config
+    const {
+      data = null,
+      url,
+      method = 'get',
+      headers,
+      responseType,
+      timeout = 0,
+      cancelToken
+    } = config
     const request = new XMLHttpRequest()
 
     responseType && (request.responseType = responseType)
@@ -42,6 +50,14 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       Object.entries(headers).forEach(([name, val]) => {
         request.setRequestHeader(name, val as string)
       })
+
+    if (cancelToken) {
+      // 非常巧妙的利用了promise的状态切换来订阅了一个then回调
+      cancelToken.promise.then(reason => {
+        request.abort()
+        reject(reason)
+      })
+    }
 
     request.send(data)
 
